@@ -1,0 +1,69 @@
+This is backtest benchmark history.
+choppy window:
+fromDate=2025-02-12  toDate=2025-06-12
+best result window:
+fromDate=2025-10-27 toDate=2026-02-18
+
+2026-02-20 - after EMA implementation:
+Symbol       Bars   Trades  WinRate       Comm      OptPnL     TotalPnL     AvgPnL       PF      MaxDD   Conf
+-------------------------------------------------------------------------------------------------------------
+SPY         38862       43   100.0%       0.00    20055.69     26815.96     623.63      INF    9068.51    MED
+QQQ         38862       50    90.0%       0.00    21648.58     23816.20     476.32   113.92    6259.07    MED
+TLT         54284       68    97.1%       0.00     8454.22      7015.17     103.16    68.51    1361.75    MED
+
+
+
+use real data
+SPY          3786        5   100.0%       0.00     2873.29      2002.98     400.60      INF     398.60    LOW
+QQQ          3786        3   100.0%       0.00     1537.91      1256.64     418.88      INF     954.87    LOW
+TLT          3630        6   100.0%       0.00      630.36       438.76      73.13      INF      44.08    LOW
+
+Slippage sweep summary:
+Slippage       Trades  WinRate     TotalPnL      MaxDD    OptionPnL
+------------------------------------------------------------------------
+0.00 bps      161    95.7%     57357.33    9072.51     50158.49
+2.00 bps      161    95.7%     57340.02    9072.51     50158.49
+5.00 bps      161    95.7%     57314.05    9072.51     50158.49
+
+
+without VWAP
+Symbol       Bars   Trades  WinRate       Comm      OptPnL     TotalPnL     AvgPnL       PF      MaxDD   Conf
+-------------------------------------------------------------------------------------------------------------
+SPY          6552        6   100.0%       0.00     2413.18      7016.68    1169.45      INF    6242.39    LOW
+QQQ          6552        8    87.5%       0.00     3063.13      1875.52     234.44      INF    5775.21    LOW
+TLT          6552        9   100.0%       0.00      952.28       795.27      88.36      INF     410.91    LOW
+
+with VWAP
+Symbol       Bars   Trades  WinRate       Comm      OptPnL     TotalPnL     AvgPnL       PF      MaxDD   Conf
+-------------------------------------------------------------------------------------------------------------
+QQQ          6552        6    83.3%       0.00     2311.42      7586.75    1264.46   157.10    5775.21    LOW
+SPY          6552        6   100.0%       0.00     2416.79      6851.92    1141.99      INF    6376.04    LOW
+TLT          6552        9   100.0%       0.00      998.96       736.77      81.86      INF     410.91    LOW
+
+
+
+IV Rank = false
+Symbol       Bars   Trades  WinRate       Comm      OptPnL     TotalPnL     AvgPnL       PF      MaxDD   Conf
+-------------------------------------------------------------------------------------------------------------
+QQQ          6552        6    83.3%       0.00     2311.42      7586.75    1264.46   157.10    5775.21    LOW
+SPY          6552        6   100.0%       0.00     2416.79      6851.92    1141.99      INF    6376.04    LOW
+TLT          6552        9   100.0%       0.00      998.96       736.77      81.86      INF     410.91    LOW
+
+
+IV Rank = true
+Symbol       Bars   Trades  WinRate       Comm      OptPnL     TotalPnL     AvgPnL       PF      MaxDD   Conf
+-------------------------------------------------------------------------------------------------------------
+QQQ          6552        4    75.0%       0.00     1305.52      6690.00    1672.50   138.65    6337.33    LOW
+SPY          6552        4    75.0%       0.00     1939.04      1206.37     301.59    46.48    6048.59    LOW
+TLT          6552        9   100.0%       0.00      998.96       736.77      81.86      INF     410.91    LOW
+
+
+IV Filter hurts performance, default = false
+
+
+Defined Risk Trend first run: 1 contract SPY, 2 contract IWM
+Symbol       Bars   Trades  WinRate       Comm      OptPnL     TotalPnL     AvgPnL       PF      MaxDD   Conf
+-------------------------------------------------------------------------------------------------------------
+SPY         38862       73    53.4%     219.00     3617.46      3617.46      49.55     1.93     697.94    MED
+IWM         24036       54    61.1%     162.00     3605.26      3605.26      66.76     1.57    1428.28    MED
+
