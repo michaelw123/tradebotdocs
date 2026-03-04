@@ -85,7 +85,7 @@ Meaning:
 
 | Parameter | Current Value | Role |
 |---|---:|---|
-| `tradebot.wheel.require-ltf-for-csp` | `true` | CSP opens require an LTF-allowed signal |
+| `tradebot.wheel.require-ltf-for-csp` | `false` | CSP opens require an LTF-allowed signal |
 | `tradebot.wheel.require-ltf-for-cc` | `false` | CC opens require an LTF-allowed signal |
 
 Used in:
@@ -100,11 +100,11 @@ Used in:
 | `tradebot.wheel.min-dte` | `25` | DTE floor for new sells |
 | `tradebot.wheel.max-dte` | `35` | DTE ceiling for new sells |
 | `tradebot.wheel.target-dte` | `30` | Target DTE hint |
-| `tradebot.wheel.income-roll-enabled` | `false` | Enable OTM income roll logic |
+| `tradebot.wheel.income-roll-enabled` | `true` | Enable OTM income roll logic |
 | `tradebot.wheel.income-roll-trigger-dte` | `12` | Income roll trigger window |
 | `tradebot.wheel.profit-take-close-enabled` | `true` | Allows closing short option early |
 | `tradebot.wheel.profit-take-price-fraction` | `0.20` | Close if option mark <= 20% of entry |
-| `tradebot.wheel.profit-take-min-dte` | `3` | Earliest DTE for profit-take close |
+| `tradebot.wheel.profit-take-min-dte` | `2` | Earliest DTE for profit-take close |
 
 Used in:
 - Live: `src/main/scala/tradebot/actors/strategy/WheelStrategyActor.scala`.
@@ -125,7 +125,7 @@ Used in:
 | `tradebot.wheel.quote-scan-batch-size` | `20` | Quote request batch size |
 | `tradebot.wheel.quote-scan-inter-batch-ms` | `250` | Pause between quote batches |
 | `tradebot.wheel.quote-scan-max-strikes` | `24` | Max strike candidates to scan |
-| `tradebot.wheel.selection-put-target-abs-delta` | `0.22` | CSP strike delta target for scoring |
+| `tradebot.wheel.selection-put-target-abs-delta` | `0.18` | CSP strike delta target for scoring |
 | `tradebot.wheel.selection-put-min-abs-delta` | `0.12` | CSP minimum allowed abs delta |
 | `tradebot.wheel.selection-put-max-abs-delta` | `0.35` | CSP maximum allowed abs delta |
 | `tradebot.wheel.selection-put-min-annualized-credit-pct` | `0.04` | CSP minimum annualized credit floor |
@@ -145,7 +145,7 @@ Used by:
 | `tradebot.wheel.ema-trend-filter-enabled` | `true` | Enable EMA trend regime gating |
 | `tradebot.wheel.ema-trend-strict-for-csp` | `true` | Stricter CSP entry in downtrend |
 | `tradebot.wheel.ema-trend-strict-for-cc` | `true` | Stricter CC entry in uptrend |
-| `tradebot.wheel.vwap-deviation-filter-enabled` | `true` | Enable VWAP deviation gating |
+| `tradebot.wheel.vwap-deviation-filter-enabled` | `false` | Enable VWAP deviation gating |
 | `tradebot.wheel.vwap-deviation-min-pct-for-csp` | `-1.5` | Lower bound for CSP entry |
 | `tradebot.wheel.vwap-deviation-max-pct-for-csp` | `0.5` | Upper bound for CSP entry |
 | `tradebot.wheel.vwap-deviation-min-pct-for-cc` | `-0.5` | Lower bound for CC entry |
@@ -160,9 +160,8 @@ Used by:
 ## 9. Symbol Overrides In Config
 
 `tradebot.wheel-symbol-overrides` currently sets:
-- `SPY`: `min-dte=21`, `max-dte=30`, `target-dte=25`, `target-put-moneyness=0.96`
-- `QQQ`: `min-dte=21`, `max-dte=30`, `target-dte=25`, `target-put-moneyness=0.96`
-- `TLT`: `min-dte=25`, `max-dte=35`, `target-dte=30`, `target-put-moneyness=0.95`
+- `SPY`: `min-dte=21`, `max-dte=30`, `target-dte=25`, `target-put-moneyness=0.96`, plus SPY-specific market-exit/regime/entry controls.
+- `TLT`: `min-dte=30`, `max-dte=45`, `target-dte=35`, `target-put-moneyness=0.95`, plus TLT-specific market-exit/regime controls.
 
 ## 10. Backtest-Specific Knobs (Can Override Config)
 
@@ -177,9 +176,14 @@ Backtest adds simulation knobs (CLI optional):
 - `forceCloseAtEnd`
 - `slippageBps`
 - `feePerOrder`
+- `exportWheelMlDataset`
 
 Main parser:
 - `src/main/scala/tradebot/utils/BacktestRunner.scala` (`parseArgs`).
+
+Related trainer input options:
+- `WheelMlBaselineTrainer input=<file-or-folder>`
+- `WheelMlBaselineTrainer exportMergedInput=true|false` (writes `wheel-ml-dataset-merged-*.csv` before training)
 
 ## 11. Operational Guidance
 
@@ -187,3 +191,13 @@ Main parser:
 2. Use CLI overrides only for controlled experiments.
 3. When comparing backtests, log full argument strings so differences are auditable.
 4. If you change `trading-timeframe`, verify LTF aggregation behavior in live path before assuming full propagation.
+5. CLI keys are parsed case-insensitively (`OutDir` and `outDir` are equivalent).
+
+## 12. Recent Wheel Behavior Updates (No New Tuning Knob)
+
+These are implementation changes that affect robustness but are not direct strategy tuning parameters.
+
+1. Sec-def `tradingClass` is now preserved from IBKR and carried into wheel option contracts.
+2. Sec-def completion now clears pending wheel requests with a warning if no preferred chain was matched (prevents silent hangs).
+3. Wheel expiry/DTE date basis in selection helpers now defaults to `America/New_York`.
+4. Wheel ML trainer can now read a directory of `wheel-ml-dataset-*.csv`, merge them in-memory, and optionally export the merged input file.
